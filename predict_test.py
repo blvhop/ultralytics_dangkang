@@ -5,9 +5,9 @@ import cv2
 from PIL import Image
 from tqdm import tqdm
 
-IMGSZ = 640
+IMGSZ = 1280
 
-files = [file for file in Path('/root/blvhop/resize_test').rglob("*.*")]
+files = [file for file in Path('/root/blvhop/test/hwxj1280code').rglob("*.*")]
 for filepath in tqdm(files, ncols=80, desc='遍历文件'):
     ######################################################
     # 全部cv2方式resize对比

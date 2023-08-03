@@ -5,8 +5,8 @@ from ultralytics import YOLO
 # # 加载模型
 # model = YOLO('/root/blvhop/ultralytics/yolov8l.pt')  # load a pretrained model (recommended for training)
 # # 训练模型
-# model.train(data='coco128.yaml', epochs=1, batch=1, imgsz=640, optimizer='SGD', lr0=0.01, workers=1)
-# # model.train(data='hwxj-g.yaml', epochs=1, batch=1, imgsz=640, optimizer='SGD', lr0=0.01, workers=1)
+# # model.train(data='coco128.yaml', epochs=1, batch=1, imgsz=640, optimizer='SGD', lr0=0.01, workers=1)
+# model.train(data='hwxj-g.yaml', epochs=1, batch=1, imgsz=640, optimizer='SGD', lr0=0.01, workers=1)
 # # model.train(data='hwxj-g.yaml', epochs=1, imgsz=640, optimizer='SGD', lr0=0.01, batch=128, device='0,1', workers=1)
 # #########################################################
 

@@ -539,7 +539,7 @@ class RandomFlip:
 class LetterBox:
     """Resize image and padding for detection, instance segmentation, pose."""
 
-    def __init__(self, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, center=True, stride=32):
+    def __init__(self, new_shape=(640, 640), auto=False, scaleFill=True, scaleup=True, center=True, stride=32):
         """Initialize LetterBox object with specific parameters."""
         self.new_shape = new_shape
         self.auto = auto
@@ -581,8 +581,7 @@ class LetterBox:
             labels['ratio_pad'] = (labels['ratio_pad'], (dw, dh))  # for evaluation
 
         if shape[::-1] != new_unpad:  # resize
-            interpolation = cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC
-            img = cv2.resize(img, new_unpad, interpolation=interpolation)
+            img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT,
@@ -659,13 +658,16 @@ class Albumentations:
             check_version(A.__version__, '1.0.3', hard=True)  # version requirement
 
             T = [
-                A.Blur(p=0.01),
+                A.OneOf([
+                    A.Blur(),  # 高斯卷积核模糊，但是只有卷积核大小随机。
+                    A.GaussNoise(),  # 将高斯噪声应用于输入图像。
+                ], p=0.2),  # 应用选定变换的概率
                 A.MedianBlur(p=0.01),
-                A.ToGray(p=0.01),
+                A.ToGray(p=0.1),
                 A.CLAHE(p=0.01),
                 A.RandomBrightnessContrast(p=0.0),
                 A.RandomGamma(p=0.0),
-                A.ImageCompression(quality_lower=75, p=0.0)]  # transforms
+                A.ImageCompression(quality_lower=75, p=0.1)]  # transforms
             self.transform = A.Compose(T, bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
 
             LOGGER.info(prefix + ', '.join(f'{x}'.replace('always_apply=False, ', '') for x in T if x.p))

@@ -22,7 +22,8 @@ class DetectionPredictor(BasePredictor):
         for i, pred in enumerate(preds):
             orig_img = orig_imgs[i] if isinstance(orig_imgs, list) else orig_imgs
             if not isinstance(orig_imgs, torch.Tensor):
-                pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+                pred[:, [0, 2]] = pred[:, [0, 2]] * orig_img.shape[1]/img.shape[3]
+                pred[:, [1, 3]] = pred[:, [1, 3]] * orig_img.shape[0]/img.shape[2]
             path = self.batch[0]
             img_path = path[i] if isinstance(path, list) else path
             results.append(Results(orig_img=orig_img, path=img_path, names=self.model.names, boxes=pred))
