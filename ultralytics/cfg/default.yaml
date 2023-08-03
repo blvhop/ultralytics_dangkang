@@ -75,7 +75,7 @@ int8: False  # (bool) CoreML/TF INT8 quantization
 dynamic: False  # (bool) ONNX/TF/TensorRT: dynamic axes
 simplify: False  # (bool) ONNX: simplify model
 opset:  # (int, optional) ONNX: opset version
-workspace: 4  # (int) TensorRT: workspace size (GB)
+workspace: 1  # (int) TensorRT: workspace size (GB)
 nms: False  # (bool) CoreML: add NMS
 
 # Hyperparameters ------------------------------------------------------------------------------------------------------

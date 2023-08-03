@@ -581,7 +581,8 @@ class LetterBox:
             labels['ratio_pad'] = (labels['ratio_pad'], (dw, dh))  # for evaluation
 
         if shape[::-1] != new_unpad:  # resize
-            img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+            interpolation = cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC
+            img = cv2.resize(img, new_unpad, interpolation=interpolation)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT,

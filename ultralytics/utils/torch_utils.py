@@ -99,7 +99,8 @@ def select_device(device='', batch=0, newline=False, verbose=True):
         for i, d in enumerate(devices):
             p = torch.cuda.get_device_properties(i)
             s += f"{'' if i == 0 else space}CUDA:{d} ({p.name}, {p.total_memory / (1 << 20):.0f}MiB)\n"  # bytes to MB
-        arg = 'cuda:0'
+        # arg = 'cuda:0'
+        arg = f'cuda:{devices[i]}'
     elif mps and getattr(torch, 'has_mps', False) and torch.backends.mps.is_available() and TORCH_2_0:
         # Prefer MPS if available
         s += f'MPS ({get_cpu_info()})\n'
@@ -110,6 +111,7 @@ def select_device(device='', batch=0, newline=False, verbose=True):
 
     if verbose and RANK == -1:
         LOGGER.info(s if newline else s.rstrip())
+    print("xxx", arg)
     return torch.device(arg)
 
 

@@ -16,7 +16,7 @@ for root, dirs, files in os.walk(top="/root/blvhop/hwxj/images/", topdown=True, 
 for subfolder in tqdm(subfolders):
     try:
         # classes: 14: 'bird'
-        results = model.predict(source=subfolder, classes=[14], iou=0.45, conf=0.25, verbose=True, save=False, stream=False)
+        results = model.predict(source=subfolder, task='detect', classes=[14], iou=0.45, conf=0.25, verbose=True, save=False, stream=False)
     except FileNotFoundError:
         continue
 

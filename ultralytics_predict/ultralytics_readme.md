@@ -6,11 +6,15 @@
     改动为
     +workspace: 1  # TensorRT: workspace size (GB)
 
-
     ultralytics/yolo/utils/torch_utils.py
     - arg = 'cuda:0'
     + # arg = 'cuda:0'
     + arg = f'cuda:{devices[i]}'
+
+    ultralytics/data/augment.py
+    - img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+    + interpolation = cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC
+    + img = cv2.resize(img, new_unpad, interpolation=interpolation)
 
     ultralytics/yolo/engine/results.py
     self.names = names
