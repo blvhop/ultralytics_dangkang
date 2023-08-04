@@ -152,10 +152,11 @@ class BaseDataset(Dataset):
                 if im is None:
                     raise FileNotFoundError(f'Image Not Found {f}')
             h0, w0 = im.shape[:2]  # orig hw
-            if h0 != self.imgsz or w0 != self.imgsz:
-                r = self.imgsz / max(h0, w0)  # ratio
-                interp = cv2.INTER_CUBIC if (self.augment or r > 1) else cv2.INTER_AREA
-                im = cv2.resize(im, (self.imgsz, self.imgsz), interpolation=interp)
+            r = self.imgsz / max(h0, w0)  # ratio
+            if r != 1:  # if sizes are not equal
+                interp = cv2.INTER_LINEAR if (self.augment or r > 1) else cv2.INTER_AREA
+                im = cv2.resize(im, (min(math.ceil(w0 * r), self.imgsz), min(math.ceil(h0 * r), self.imgsz)),
+                                interpolation=interp)
 
             # Add to buffer if training with augmentations
             if self.augment:
