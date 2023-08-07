@@ -539,7 +539,9 @@ class RandomFlip:
 class LetterBox:
     """Resize image and padding for detection, instance segmentation, pose."""
 
+    # xxx resize
     def __init__(self, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, center=True, stride=32):
+    # def __init__(self, new_shape=(640, 640), auto=False, scaleFill=True, scaleup=True, center=True, stride=32):
         """Initialize LetterBox object with specific parameters."""
         self.new_shape = new_shape
         self.auto = auto
@@ -581,7 +583,9 @@ class LetterBox:
             labels['ratio_pad'] = (labels['ratio_pad'], (dw, dh))  # for evaluation
 
         if shape[::-1] != new_unpad:  # resize
+            # xxx resize
             img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+            # img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT,

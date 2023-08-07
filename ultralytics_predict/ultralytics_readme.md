@@ -1,5 +1,11 @@
 # ultralytics
 
+todo: 
+图像宽高不等比缩放数据增强。
+RandomPerspective后将小于24像素的目标标签去掉，图像抠掉看看环境误识别现象会变好。
+尝试：
+不做Mosaic增强看效果怎么样。发现Mosaic+RandomPerspective后，有些目标的宽或高像素极小，都看不出是动物了，肯定影响识别。
+
 ## 要修改的内容
 
 训练和预测时需注意：原yolov8默认宽高固定比例缩放，在动物识别中没必要固定比例缩放，所以要将图片手动预先处理成640x640分辨率的图像，将宽高直接缩放到位。2023年8月4日09:34:44
@@ -44,34 +50,18 @@ ultralytics/yolo/utils/torch_utils.py
 
 此处备忘，手动预先处理图片到固定分辨率即可，无需修改yolov8框架处理。
 
-ultralytics/data/base.py
-
-```python
-class BaseDataset(Dataset):
-    def load_image(self, i):
-        # 1、直接缩放到目标分辨率（不在固定宽高比例）
-        # 2、将放大cv2.INTER_LINEAR方式改为cv2.INTER_CUBIC
-        - r = self.imgsz / max(h0, w0)  # ratio
-        - if r != 1:  # if sizes are not equal
-        -   interp = cv2.INTER_LINEAR if (self.augment or r > 1) else cv2.INTER_AREA
-        -   im = cv2.resize(im, (min(math.ceil(w0 * r), self.imgsz), min(math.ceil(h0 * r), self.imgsz)),
-        + if h0 != self.imgsz or w0 != self.imgsz:
-        +   r = self.imgsz / max(h0, w0)  # ratio
-        +   interp = cv2.INTER_CUBIC if (self.augment or r > 1) else cv2.INTER_AREA
-        +   im = cv2.resize(im, (self.imgsz, self.imgsz), interpolation=interp)
-```
-
 ultralytics/data/dataset.py
 
-```python
-将默认scaleup=False不允许放大去掉，即允许放大
-- transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz), scaleup=False)])
-+ transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz))])
+```diff
+def build_transforms(self, hyp=None):
+    将默认scaleup=False不允许放大去掉，即允许放大
+    - transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz), scaleup=False)])
+    + transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz))])
 ```
 
 ultralytics/data/augment.py
 
-```python
+```diff
 class LetterBox:
     # 改scaleFill=True直接缩放到目标大小
     - def __init__(self, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, center=True, stride=32):
@@ -85,12 +75,29 @@ class LetterBox:
 
 ultralytics/models/yolo/detect/predict.py
 
-```python
+```diff
 def postprocess(self, preds, img, orig_imgs):
     # 直接等比缩放还原，不需要反向还原LetterBox内容
     - pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
     + pred[:, [0, 2]] = pred[:, [0, 2]] * orig_img.shape[1]/img.shape[3]
     + pred[:, [1, 3]] = pred[:, [1, 3]] * orig_img.shape[0]/img.shape[2]
+```
+
+ultralytics/data/base.py (训练时才要该，预测不用改)
+
+```diff
+class BaseDataset(Dataset):
+    def load_image(self, i):
+        # 1、直接缩放到目标分辨率（不在固定宽高比例）
+        # 2、将放大cv2.INTER_LINEAR方式改为cv2.INTER_CUBIC
+        - r = self.imgsz / max(h0, w0)  # ratio
+        - if r != 1:  # if sizes are not equal
+        -   interp = cv2.INTER_LINEAR if (self.augment or r > 1) else cv2.INTER_AREA
+        -   im = cv2.resize(im, (min(math.ceil(w0 * r), self.imgsz), min(math.ceil(h0 * r), self.imgsz)),
+        + if h0 != self.imgsz or w0 != self.imgsz:
+        +   r = self.imgsz / max(h0, w0)  # ratio
+        +   interp = cv2.INTER_CUBIC if (self.augment or r > 1) else cv2.INTER_AREA
+        +   im = cv2.resize(im, (self.imgsz, self.imgsz), interpolation=interp)
 ```
 
 ## 可修改内容备忘
