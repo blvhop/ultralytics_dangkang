@@ -10,7 +10,7 @@ from voc_xml import save_voc_xml
 model = YOLO('/root/blvhop/model/model_jcnl_pos_20230629.onnx')
 
 # yolov8姿态关键点识别
-results = model.predict(source='/root/blvhop/jcnltest02/', task='pose', iou=0.45, conf=0.25, half=True, verbose=False, save=False, stream=False, boxes=False)
+results = model.predict(source='/data/blvhop/vector_index/dataset/00采集数据-A原图/test', task='pose', iou=0.45, conf=0.25, half=True, verbose=False, save=False, stream=False, boxes=False)
 
 for result in results:
     # Keypoints object can be used index, manipulate and normalize coordinates. The keypoint conversion operation is cached.
@@ -36,6 +36,6 @@ for result in results:
         img = cv2.circle(img, center, 20, (0, 10, 255), 2)
         # 写置信度
         img = cv2.putText(img, f'{result.boxes.conf.cpu().numpy()[i]:.2f}', (center[0]+20, center[1]+10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 1)
-    img_path = Path(result.path.replace('jcnltest02', 'jcnltest02.pos'))
+    img_path = Path(result.path.replace('test', 'test.pos'))
     img_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 100])[1].tofile(img_path)
