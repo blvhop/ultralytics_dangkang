@@ -22,7 +22,7 @@ class WorkingDirectory(contextlib.ContextDecorator):
         """Changes the current directory to the specified directory."""
         os.chdir(self.dir)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):  # noqa
         """Restore the current working directory on context exit."""
         os.chdir(self.cwd)
 
@@ -30,9 +30,9 @@ class WorkingDirectory(contextlib.ContextDecorator):
 @contextmanager
 def spaces_in_path(path):
     """
-    Context manager to handle paths with spaces in their names.
-    If a path contains spaces, it replaces them with underscores, copies the file/directory to the new path,
-    executes the context code block, then copies the file/directory back to its original location.
+    Context manager to handle paths with spaces in their names. If a path contains spaces, it replaces them with
+    underscores, copies the file/directory to the new path, executes the context code block, then copies the
+    file/directory back to its original location.
 
     Args:
         path (str | Path): The original path.
@@ -40,9 +40,13 @@ def spaces_in_path(path):
     Yields:
         (Path): Temporary path with spaces replaced by underscores if spaces were present, otherwise the original path.
 
-    Examples:
+    Example:
+        ```python
+        with ultralytics.utils.files import spaces_in_path
+
         with spaces_in_path('/path/with spaces') as new_path:
-            # your code here
+            # Your code here
+        ```
     """
 
     # If path has spaces, replace them with underscores
@@ -103,7 +107,7 @@ def increment_path(path, exist_ok=False, sep='', mkdir=False):
         # Method 1
         for n in range(2, 9999):
             p = f'{path}{sep}{n}{suffix}'  # increment path
-            if not os.path.exists(p):  #
+            if not os.path.exists(p):
                 break
         path = Path(p)
 
@@ -141,13 +145,3 @@ def get_latest_run(search_dir='.'):
     """Return path to most recent 'last.pt' in /runs (i.e. to --resume from)."""
     last_list = glob.glob(f'{search_dir}/**/last*.pt', recursive=True)
     return max(last_list, key=os.path.getctime) if last_list else ''
-
-
-def make_dirs(dir='new_dir/'):
-    """Create directories."""
-    dir = Path(dir)
-    if dir.exists():
-        shutil.rmtree(dir)  # delete dir
-    for p in dir, dir / 'labels', dir / 'images':
-        p.mkdir(parents=True, exist_ok=True)  # make dir
-    return dir
