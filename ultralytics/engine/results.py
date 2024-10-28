@@ -4,19 +4,21 @@ Ultralytics Results, Boxes and Masks classes for handling inference results.
 
 Usage: See https://docs.ultralytics.com/modes/predict/
 """
-
+import os
 from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
 import torch
+from PIL import ImageDraw, Image
 
 from ultralytics.data.augment import LetterBox
 from ultralytics.utils import LOGGER, SimpleClass, ops
 from ultralytics.utils.plotting import Annotator, colors, save_one_box
 from ultralytics.utils.torch_utils import smart_inference_mode
 
+code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class BaseTensor(SimpleClass):
     """Base tensor class with additional methods for easy manipulation and device handling."""
@@ -163,21 +165,39 @@ class Results(SimpleClass):
         """Return a new Results object with the same image, path, and names."""
         return Results(orig_img=self.orig_img, path=self.path, names=self.names)
 
+    ###
+    # xxx modify alpha 添加半透明矩形函数
+    def drawRects(self, img, boxes, fills):
+        transp = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(transp, "RGBA")
+        for box, fill in zip(boxes, fills):
+            draw.rectangle(xy=box, fill=tuple(fill))
+        alpha_img = Image.alpha_composite(img, transp)
+        # alpha_draw = ImageDraw.Draw(alpha_img, "RGBA")
+        # for box, fill in zip(boxes, fills):
+        #     # 绘制不透明的边框
+        #     fill[3] = 255
+        #     xmin, ymin, xmax, ymax = box
+        #     alpha_draw.line([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)], width=2, fill=tuple(fill))
+        img.paste(alpha_img)
+
+    ###
+
     def plot(
-        self,
-        conf=True,
-        line_width=None,
-        font_size=None,
-        font='Arial.ttf',
-        pil=False,
-        img=None,
-        im_gpu=None,
-        kpt_radius=5,
-        kpt_line=True,
-        labels=True,
-        boxes=True,
-        masks=True,
-        probs=True,
+            self,
+            conf=True,
+            line_width=None,
+            font_size=None,
+            font='Arial.ttf',
+            pil=False,
+            img=None,
+            im_gpu=None,
+            kpt_radius=5,
+            kpt_line=True,
+            labels=True,
+            boxes=True,
+            masks=True,
+            probs=True,
     ):
         """
         Plots the detection results on an input RGB image. Accepts a numpy array (cv2) or a PIL Image.
@@ -240,11 +260,37 @@ class Results(SimpleClass):
 
         # Plot Detect results
         if pred_boxes and show_boxes:
+            ###
+            # xxx modify alpha 添加半透明矩形需要的参数
+            boxes = []
+            fills = []
+            ###
             for d in reversed(pred_boxes):
                 c, conf, id = int(d.cls), float(d.conf) if conf else None, None if d.id is None else int(d.id.item())
                 name = ('' if id is None else f'id:{id} ') + names[c]
+                # if name == '鸟':
+                #     name = '喜鹊'
                 label = (f'{name} {conf:.2f}' if conf else name) if labels else None
                 annotator.box_label(d.xyxy.squeeze(), label, color=colors(c, True))
+
+                ###
+                # xxx modify alpha 添加半透明矩形需要的参数
+                color = list(colors(c, True))
+                color.append(50)  # 添加半透明80
+                fills.append(color)
+                box = d.xyxy.squeeze().cpu().numpy().astype(int).tolist()
+                boxes.append(box)
+                ###
+
+            ###
+            # # xxx modify alpha 添加半透明矩形
+            # # 对比默认打框和半透明矩形方式，发现还是默认打框看起来更舒服，更清晰，常规情况保持默认打框方式不变吧！2024年3月1日12:48:59
+            # bg_img = annotator.im.convert('RGBA')
+            # self.drawRects(bg_img, boxes=boxes, fills=fills)  # 添加多个半透明矩形
+            # # 替换掉annotator的im和draw
+            # annotator.im.paste(bg_img.convert('RGB'))
+            # annotator.draw = ImageDraw.Draw(annotator.im)
+            ###
 
         # Plot Classify results
         if pred_probs is not None and show_probs:
@@ -255,8 +301,7 @@ class Results(SimpleClass):
         # Plot Pose results
         if self.keypoints is not None:
             # xxx modify custom pose draw
-            code_mode_is_original = False  # 代码模式是否是原始：原始，True；自定义，False
-            if code_mode_is_original:
+            if code_mode_is_original_pose_draw:
                 for k in reversed(self.keypoints.data):
                     annotator.kpts(k, self.orig_shape, radius=kpt_radius, kpt_line=kpt_line)
             else:

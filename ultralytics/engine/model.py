@@ -1,6 +1,7 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
 import inspect
+import os
 import sys
 from pathlib import Path
 from typing import Union
@@ -10,6 +11,10 @@ from ultralytics.hub.utils import HUB_WEB_ROOT
 from ultralytics.nn.tasks import attempt_load_one_weight, guess_model_task, nn, yaml_model_load
 from ultralytics.utils import ASSETS, DEFAULT_CFG_DICT, LOGGER, RANK, callbacks, checks, emojis, yaml_load
 
+# 获取环境变量的值
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+print("xxx", "code_mode_is_original_resize:", code_mode_is_original_resize, "code_mode_is_original_pose_draw:", code_mode_is_original_pose_draw)
 
 class Model(nn.Module):
     """

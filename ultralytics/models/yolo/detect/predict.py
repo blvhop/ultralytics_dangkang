@@ -1,9 +1,11 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
+import os
 
 from ultralytics.engine.predictor import BasePredictor
 from ultralytics.engine.results import Results
 from ultralytics.utils import ops
 
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class DetectionPredictor(BasePredictor):
     """
@@ -36,11 +38,13 @@ class DetectionPredictor(BasePredictor):
         for i, pred in enumerate(preds):
             orig_img = orig_imgs[i]
             # xxx modify resize
-            # original
-            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
-            # modify
-            # pred[:, [0, 2]] = pred[:, [0, 2]] * orig_img.shape[1] / img.shape[3]
-            # pred[:, [1, 3]] = pred[:, [1, 3]] * orig_img.shape[0] / img.shape[2]
+            if code_mode_is_original_resize:
+                # original
+                pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+            else:
+                # modify
+                pred[:, [0, 2]] = pred[:, [0, 2]] * orig_img.shape[1] / img.shape[3]
+                pred[:, [1, 3]] = pred[:, [1, 3]] * orig_img.shape[0] / img.shape[2]
             img_path = self.batch[0][i]
             results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
         return results
