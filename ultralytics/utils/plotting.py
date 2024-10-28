@@ -2,6 +2,7 @@
 
 import contextlib
 import math
+import os
 import warnings
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from ultralytics.utils import LOGGER, TryExcept, ops, plt_settings, threaded
 from .checks import check_font, check_version, is_ascii
 from .files import increment_path
 
+code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class Colors:
     """
@@ -192,8 +194,7 @@ class Annotator:
             x_coord, y_coord = k[0], k[1]
             if x_coord % shape[1] != 0 and y_coord % shape[0] != 0:
                 # xxx modify custom pose draw
-                code_mode_is_original = False  # 代码模式是否是原始：原始，True；自定义，False
-                if code_mode_is_original:
+                if code_mode_is_original_pose_draw:
                     if len(k) == 3:
                         conf = k[2]
                         if conf < 0.5:

@@ -1,9 +1,11 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
+import os
 
 from ultralytics.engine.results import Results
 from ultralytics.models.yolo.detect.predict import DetectionPredictor
 from ultralytics.utils import DEFAULT_CFG, LOGGER, ops
 
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class PosePredictor(DetectionPredictor):
     """
@@ -44,9 +46,17 @@ class PosePredictor(DetectionPredictor):
         results = []
         for i, pred in enumerate(preds):
             orig_img = orig_imgs[i]
-            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape).round()
-            pred_kpts = pred[:, 6:].view(len(pred), *self.model.kpt_shape) if len(pred) else pred[:, 6:]
-            pred_kpts = ops.scale_coords(img.shape[2:], pred_kpts, orig_img.shape)
+            # xxx modify resize
+            if code_mode_is_original_resize:
+                # original
+                pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape).round()
+                pred_kpts = pred[:, 6:].view(len(pred), *self.model.kpt_shape) if len(pred) else pred[:, 6:]
+                pred_kpts = ops.scale_coords(img.shape[2:], pred_kpts, orig_img.shape)
+            else:
+                # modify
+                pred[:, [0, 2, 6]] = pred[:, [0, 2, 6]] * orig_img.shape[1] / img.shape[3]
+                pred[:, [1, 3, 7]] = pred[:, [1, 3, 7]] * orig_img.shape[0] / img.shape[2]
+                pred_kpts = pred[:, 6:].view(len(pred), *self.model.kpt_shape) if len(pred) else pred[:, 6:]
             img_path = self.batch[0][i]
             results.append(
                 Results(orig_img, path=img_path, names=self.model.names, boxes=pred[:, :6], keypoints=pred_kpts))

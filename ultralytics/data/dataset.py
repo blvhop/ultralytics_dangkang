@@ -1,5 +1,6 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 import contextlib
+import os
 from itertools import repeat
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
@@ -17,7 +18,7 @@ from .utils import HELP_URL, LOGGER, get_hash, img2label_paths, verify_image, ve
 
 # Ultralytics dataset *.cache version, >= 1.0.0 for YOLOv8
 DATASET_CACHE_VERSION = '1.0.3'
-
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class YOLODataset(BaseDataset):
     """
@@ -142,10 +143,12 @@ class YOLODataset(BaseDataset):
             transforms = v8_transforms(self, self.imgsz, hyp)
         else:
             # xxx modify resize
-            # original
-            transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz), scaleup=False)])
-            # modify
-            # transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz))])
+            if code_mode_is_original_resize:
+                # original
+                transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz), scaleup=False)])
+            else:
+                # modify
+                transforms = Compose([LetterBox(new_shape=(self.imgsz, self.imgsz))])
         transforms.append(
             Format(bbox_format='xywh',
                    normalize=True,

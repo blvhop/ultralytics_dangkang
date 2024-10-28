@@ -1,6 +1,7 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 
 import math
+import os
 import random
 from copy import deepcopy
 
@@ -17,6 +18,7 @@ from ultralytics.utils.ops import segment2box
 
 from .utils import polygons2masks, polygons2masks_overlap
 
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 # TODO: we might need a BaseTransform to make all these augments be compatible with both classification and semantic
 class BaseTransform:
@@ -680,12 +682,17 @@ class RandomFlip:
 class LetterBox:
     """Resize image and padding for detection, instance segmentation, pose."""
 
-    # xxx modify resize
-    # fo中导出训练数据之前已经将图片resize过了，ultralytics中就不用resize图像，方便切换使用默认模型。
-    # original
     def __init__(self, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, center=True, stride=32):
-    # modify
-    # def __init__(self, new_shape=(640, 640), auto=False, scaleFill=True, scaleup=True, center=True, stride=32):
+        # xxx modify resize
+        # fo中导出训练数据之前已经将图片resize过了，ultralytics中可以不用resize图像，方便切换使用默认模型。
+        if code_mode_is_original_resize:
+            # original
+            pass
+        else:
+            # modify
+            auto = False
+            scaleFill = True
+
         """Initialize LetterBox object with specific parameters."""
         self.new_shape = new_shape
         self.auto = auto
@@ -726,10 +733,12 @@ class LetterBox:
 
         if shape[::-1] != new_unpad:  # resize
             # xxx modify resize
-            # original
-            img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
-            # modify
-            # img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC)
+            if code_mode_is_original_resize:
+                # original
+                img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)
+            else:
+                # modify
+                img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_AREA if r <= 1.0 else cv2.INTER_CUBIC)
         top, bottom = int(round(dh - 0.1)) if self.center else 0, int(round(dh + 0.1))
         left, right = int(round(dw - 0.1)) if self.center else 0, int(round(dw + 0.1))
         img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT,
@@ -845,7 +854,7 @@ class Albumentations:
                     A.GaussNoise(),
                 ], p=0.2),
                 A.MedianBlur(p=0.01),
-                A.ToGray(p=0.1),
+                A.ToGray(p=0.1),  # xxx 照片灰度化，红外相机/湿地型鸟类专用
                 A.CLAHE(p=0.01),
                 A.RandomBrightnessContrast(p=0.0),
                 A.RandomGamma(p=0.0),

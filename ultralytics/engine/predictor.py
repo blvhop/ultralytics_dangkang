@@ -287,7 +287,29 @@ class BasePredictor:
                     if self.args.show and self.plotted_img is not None:
                         self.show(p)
                     if self.args.save and self.plotted_img is not None:
+                        ##############################################################################3
+                        # xxx 自定义保存预测文件名
+                        #####################################
+                        # 保存预测文件原始路径方法
                         self.save_preds(vid_cap, i, str(self.save_dir / p.name))
+                        #####################################
+                        #################### 自定义新文件名方法一
+                        # # xxx 以相对路径保存新文件名，方便保存同名但不同目录额预测文件，2为保留3级父目录
+                        # # new_name = self.save_dir / str(p)[len(str(list(p.parents)[2]))+1:]
+                        # #################### 自定义新文件名方法二
+                        # # xxx 以预测标签名作为保存文件名
+                        # filename = str(p)[len(str(list(p.parents)[2])) + 1:].replace('/', '^')
+                        # new_name = self.save_dir / '空' / filename
+                        # cls = self.results[i].boxes.cls
+                        # if cls is not None and len(cls) > 0:
+                        #     idx = self.results[i].boxes.cls.cpu().numpy().astype(int)[0]
+                        #     new_name = self.save_dir /  self.results[i].names[idx] / filename
+                        # #################### 自定义新文件名保存图片
+                        # import os
+                        # os.makedirs(str(new_name.parent), exist_ok=True)
+                        # self.save_preds(vid_cap, i, str(new_name))
+                        #####################################
+                        ##############################################################################3
 
                 self.run_callbacks('on_predict_batch_end')
                 yield from self.results
