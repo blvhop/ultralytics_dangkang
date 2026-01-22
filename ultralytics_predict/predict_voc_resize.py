@@ -9,7 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 from ultralytics import YOLO
 from ultralytics.data.utils import IMG_FORMATS, VID_FORMATS
-from blvhop.dataset_common import save_voc_xml, draw_detections, draw_detections_optimal
+from blvhop.dataset import save_voc_xml, draw_detections
 
 model_path = '/data/blvhop/ultralytics/yolov8x.pt'
 model = YOLO(model=model_path)
@@ -97,9 +97,9 @@ for impath in tqdm(impath_list, desc="图片预测"):
         if not draw_file.parent.exists():
             os.makedirs(draw_file.parent)
         im = Image.open(impath)
-        if im.mode == 'RGBA':
+        if im.mode != 'RGB':
             im = im.convert('RGB')
-        draw_detections_optimal(im, detections, 0.86)
+        draw_detections(im, detections, [0.86, 0.50], True)
         im.save(draw_file, format='JPEG')
 
     except Exception as e:

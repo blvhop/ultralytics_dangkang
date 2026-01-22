@@ -5,7 +5,7 @@ from ultralytics.engine.predictor import BasePredictor
 from ultralytics.engine.results import Results
 from ultralytics.utils import ops
 
-code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_blvhop_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class DetectionPredictor(BasePredictor):
     """
@@ -37,7 +37,7 @@ class DetectionPredictor(BasePredictor):
         results = []
         for i, pred in enumerate(preds):
             orig_img = orig_imgs[i]
-            # xxx modify resize
+            # xxx blvhop modify resize
             if code_mode_is_original_resize:
                 # original
                 pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)

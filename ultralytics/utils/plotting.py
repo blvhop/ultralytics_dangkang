@@ -18,7 +18,7 @@ from ultralytics.utils import LOGGER, TryExcept, ops, plt_settings, threaded
 from .checks import check_font, check_version, is_ascii
 from .files import increment_path
 
-code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_blvhop_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 class Colors:
     """
@@ -35,8 +35,14 @@ class Colors:
 
     def __init__(self):
         """Initialize colors as hex = matplotlib.colors.TABLEAU_COLORS.values()."""
+        # xxx blvhop modify 框的颜色修改为绿色蓝色主题 (可以放到web.md中预览直接查看颜色)
+        # 默认框的颜色为红色、橘色开始
         hexs = ('FF3838', 'FF9D97', 'FF701F', 'FFB21D', 'CFD231', '48F90A', '92CC17', '3DDB86', '1A9334', '00D4BB',
                 '2C99A8', '00C2FF', '344593', '6473FF', '0018EC', '8438FF', '520085', 'CB38FF', 'FF95C8', 'FF37C7')
+        # 修改为绿色蓝色主题
+        hexs = ('38a800', '57bb25', '41c300', '478826', '6fbb48', '06a011', '00c54a', '3DDB86', '1A9334', '00D4BB',
+                '2C99A8', '00C2FF', '344593', '6473FF', '0018EC', '8438FF', '520085', 'CB38FF', 'FF95C8', 'FF37C7')
+
         self.palette = [self.hex2rgb(f'#{c}') for c in hexs]
         self.n = len(self.palette)
         self.pose_palette = np.array([[255, 128, 0], [255, 153, 51], [255, 178, 102], [230, 230, 0], [255, 153, 255],
@@ -193,7 +199,7 @@ class Annotator:
             color_k = [int(x) for x in self.kpt_color[i]] if is_pose else colors(i)
             x_coord, y_coord = k[0], k[1]
             if x_coord % shape[1] != 0 and y_coord % shape[0] != 0:
-                # xxx modify custom pose draw
+                # xxx blvhop modify custom pose draw
                 if code_mode_is_original_pose_draw:
                     if len(k) == 3:
                         conf = k[2]

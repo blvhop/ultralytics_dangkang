@@ -4,9 +4,9 @@ import os
 # 图像缩放到固定640x640
 import traceback
 
-os.environ["xxx_modify_resize"] = '0'
+os.environ["xxx_blvhop_modify_resize"] = '0'
 # 自定义小目标绘制
-os.environ["xxx_modify_pose_draw"] = '0'
+os.environ["xxx_blvhop_modify_pose_draw"] = '0'
 
 from pathlib import Path
 from tqdm import tqdm
@@ -77,15 +77,14 @@ def single_processor(processor_id, working, queue_in, queue_out):
     后面的参数为业务代码需要的可变参数。
     """
     try:
+        device = str(processor_count % 2)
+        os.environ["CUDA_VISIBLE_DEVICES"] = device
+
         import traceback
         from ultralytics import YOLO
 
         model_path = '/data/blvhop/ultralytics/yolov8x.pt'
         model = YOLO(model=model_path)
-        if processor_id < process_count / 3:
-            device = '0'
-        else:
-            device = '0,1'
 
         while True:
             if not working.value:
@@ -132,5 +131,5 @@ pdf_paths = sorted(pdf_paths, key=lambda x: x[0])
 for pdf_path, r_pdf_path in tqdm(pdf_paths):
     things.add((pdf_path, r_pdf_path))
 
-process_count = 24  # yolox: 24; yolol:
-multi_run(single_processor, call_back_in_main, things, process_count)
+processor_count = 24  # yolox: 24; yolol:
+multi_run(single_processor, call_back_in_main, things, processor_count)

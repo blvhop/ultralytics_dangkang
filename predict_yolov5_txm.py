@@ -2,9 +2,9 @@ import os
 
 # 设置环境变量
 # 图像缩放到固定640x640
-os.environ["xxx_modify_resize"] = '0'
+os.environ["xxx_blvhop_modify_resize"] = '0'
 # 自定义小目标绘制
-os.environ["xxx_modify_pose_draw"] = '0'
+os.environ["xxx_blvhop_modify_pose_draw"] = '0'
 
 import torch
 from PIL import Image, ImageFile

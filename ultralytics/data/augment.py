@@ -18,7 +18,7 @@ from ultralytics.utils.ops import segment2box
 
 from .utils import polygons2masks, polygons2masks_overlap
 
-code_mode_is_original_resize = not bool(int(os.getenv("xxx_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+code_mode_is_original_resize = not bool(int(os.getenv("xxx_blvhop_modify_resize", 0)))  # 代码模式是否是原始：原始，True；自定义，False
 
 # TODO: we might need a BaseTransform to make all these augments be compatible with both classification and semantic
 class BaseTransform:
@@ -683,7 +683,7 @@ class LetterBox:
     """Resize image and padding for detection, instance segmentation, pose."""
 
     def __init__(self, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, center=True, stride=32):
-        # xxx modify resize
+        # xxx blvhop modify resize
         # fo中导出训练数据之前已经将图片resize过了，ultralytics中可以不用resize图像，方便切换使用默认模型。
         if code_mode_is_original_resize:
             # original
@@ -732,7 +732,7 @@ class LetterBox:
             dh /= 2
 
         if shape[::-1] != new_unpad:  # resize
-            # xxx modify resize
+            # xxx blvhop modify resize
             if code_mode_is_original_resize:
                 # original
                 img = cv2.resize(img, new_unpad, interpolation=cv2.INTER_LINEAR)

@@ -2,9 +2,9 @@ import os
 
 # 设置环境变量
 # 图像缩放到固定640x640
-os.environ["xxx_modify_resize"] = '1'
+os.environ["xxx_blvhop_modify_resize"] = '1'
 # 自定义小目标绘制
-os.environ["xxx_modify_pose_draw"] = '1'
+os.environ["xxx_blvhop_modify_pose_draw"] = '1'
 
 from pathlib import Path
 
@@ -15,10 +15,13 @@ from ultralytics import YOLO
 from voc_xml import save_voc_xml
 
 model_path = '/root/blvhop/model/model_jcnl_pos_20230629.pt'
+model_path = '/root/blvhop/model/runs/train/qn_pose_20231220/weights/last.pt'
 model = YOLO(model_path)
 
+source = '/data/blvhop/vector_index/dataset/视频'
+
 # yolov8姿态关键点识别
-results = model.predict(source='/data/blvhop/ultralytics/runs/pose/鸟类视频-机场模型-识别效果/原视频/2024-05-23', task='pose', iou=0.45, conf=0.25, half=False, verbose=False, save=True, show_boxes=False, stream=False)
+results = model.predict(source=source, task='pose', iou=0.45, conf=0.25, half=False, verbose=False, save=True, show_boxes=False, stream=True)
 
 for result in results:
     # Keypoints object can be used index, manipulate and normalize coordinates. The keypoint conversion operation is cached.

@@ -4,6 +4,7 @@ Ultralytics Results, Boxes and Masks classes for handling inference results.
 
 Usage: See https://docs.ultralytics.com/modes/predict/
 """
+import copy
 import os
 from copy import deepcopy
 from functools import lru_cache
@@ -18,7 +19,13 @@ from ultralytics.utils import LOGGER, SimpleClass, ops
 from ultralytics.utils.plotting import Annotator, colors, save_one_box
 from ultralytics.utils.torch_utils import smart_inference_mode
 
-code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+code_mode_is_original_pose_draw = not bool(int(os.getenv("xxx_blvhop_modify_pose_draw", 0)))  # 代码模式是否是原始：原始，True；自定义，False
+###
+# xxx blvhop modify statistics 左下角添加物种数统计
+_statistics = {}  # 标签id-数量 对应关系
+_frame_id = 0 # 识别帧id，每12帧更新一次统计结果，防止数值抖动
+###
+
 
 class BaseTensor(SimpleClass):
     """Base tensor class with additional methods for easy manipulation and device handling."""
@@ -166,7 +173,7 @@ class Results(SimpleClass):
         return Results(orig_img=self.orig_img, path=self.path, names=self.names)
 
     ###
-    # xxx modify alpha 添加半透明矩形函数
+    # xxx blvhop modify alpha 添加半透明矩形函数
     def drawRects(self, img, boxes, fills):
         transp = Image.new('RGBA', img.size, (0, 0, 0, 0))
         draw = ImageDraw.Draw(transp, "RGBA")
@@ -261,10 +268,19 @@ class Results(SimpleClass):
         # Plot Detect results
         if pred_boxes and show_boxes:
             ###
-            # xxx modify alpha 添加半透明矩形需要的参数
+            # xxx blvhop modify alpha 添加半透明矩形需要的参数
             boxes = []
             fills = []
             ###
+
+            ###
+            # xxx blvhop modify statistics 左下角添加物种数统计
+            global _statistics, _frame_id
+            _frame_id += 1
+            if _frame_id % 12 == 1:
+                _statistics = {}
+            ###
+
             for d in reversed(pred_boxes):
                 c, conf, id = int(d.cls), float(d.conf) if conf else None, None if d.id is None else int(d.id.item())
                 name = ('' if id is None else f'id:{id} ') + names[c]
@@ -274,16 +290,38 @@ class Results(SimpleClass):
                 annotator.box_label(d.xyxy.squeeze(), label, color=colors(c, True))
 
                 ###
-                # xxx modify alpha 添加半透明矩形需要的参数
-                color = list(colors(c, True))
-                color.append(50)  # 添加半透明80
-                fills.append(color)
-                box = d.xyxy.squeeze().cpu().numpy().astype(int).tolist()
-                boxes.append(box)
+                # # xxx blvhop modify alpha 添加半透明矩形需要的参数
+                # color = list(colors(c, True))
+                # color.append(50)  # 添加半透明80
+                # fills.append(color)
+                # box = d.xyxy.squeeze().cpu().numpy().astype(int).tolist()
+                # boxes.append(box)
+                ###
+
+                ###
+                # xxx blvhop modify statistics 左下角添加物种数统计
+                if _frame_id % 12 == 1:
+                    _statistics[c] = _statistics.get(c, 0) + 1
                 ###
 
             ###
-            # # xxx modify alpha 添加半透明矩形
+            # xxx blvhop modify statistics 左下角添加物种数统计
+            print(_statistics)
+            idx = 1
+            total_num = 0
+            for c in sorted(_statistics.keys()):
+                print([50, self.orig_img.shape[0] - 50 - 50 * idx], f"{names[c]}: {_statistics[c]}", colors(c, True))
+                total_num += _statistics[c]
+                if names[c] in ('鸟',):
+                    # 移除不需要单独显示的物种
+                    continue
+                annotator.text([50, self.orig_img.shape[0] - 200 - 50 * idx], f"{names[c]}: {_statistics[c]} 只", txt_color=colors(c, True))
+                idx += 1
+            annotator.text([50, self.orig_img.shape[0] - 200], f"{'总物种数'}: {total_num} 只", txt_color=colors(3, True))
+            ###
+
+            ###
+            # # xxx blvhop modify alpha 添加半透明矩形
             # # 对比默认打框和半透明矩形方式，发现还是默认打框看起来更舒服，更清晰，常规情况保持默认打框方式不变吧！2024年3月1日12:48:59
             # bg_img = annotator.im.convert('RGBA')
             # self.drawRects(bg_img, boxes=boxes, fills=fills)  # 添加多个半透明矩形
@@ -300,7 +338,7 @@ class Results(SimpleClass):
 
         # Plot Pose results
         if self.keypoints is not None:
-            # xxx modify custom pose draw
+            # xxx blvhop modify custom pose draw
             if code_mode_is_original_pose_draw:
                 for k in reversed(self.keypoints.data):
                     annotator.kpts(k, self.orig_shape, radius=kpt_radius, kpt_line=kpt_line)

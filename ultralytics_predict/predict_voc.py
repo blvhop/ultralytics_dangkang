@@ -5,22 +5,22 @@ from PIL import Image
 
 # 设置环境变量
 # 图像缩放到固定640x640
-os.environ["xxx_modify_resize"] = '1'
+os.environ["xxx_blvhop_modify_resize"] = '1'
 # 自定义小目标绘制
-os.environ["xxx_modify_pose_draw"] = '1'
+os.environ["xxx_blvhop_modify_pose_draw"] = '1'
 
 from pathlib import Path
 from tqdm import tqdm
 from ultralytics import YOLO
-from blvhop.dataset_common import save_voc_xml, draw_detections
+from blvhop.dataset import save_voc_xml, draw_detections
 
 model_path = '/data/blvhop/ultralytics/yolov8x.pt'
-model_path = '/root/blvhop/model/model_qn_det_20231209.pt'
-model_path = '/root/blvhop/model/runs/train/dzyqj_20240302/weights/best.pt'
-model_path = '/root/blvhop/model/runs/train/hwxj_det_20240109/weights/best.pt' # mjzy
-model_path = '/root/blvhop/model/runs/train/jt_20240418/weights/best.pt'
-model_path = '/root/blvhop/model/runs/train/dltt_20240419/weights/best.pt'
-model_path = '/data/blvhop/model/runs/train/dltt_20240703/weights/last.onnx'
+# model_path = '/data/blvhop/model/runs/train/nltk_20241225/weights/last.pt'
+# model_path = '/root/blvhop/model/model_qn_det_20231209.pt'
+# model_path = '/root/blvhop/model/runs/train/dzyqj_20240302/weights/best.pt'
+# model_path = '/root/blvhop/model/runs/train/hwxj_det_20240109/weights/best.pt' # mjzy
+# model_path = '/root/blvhop/model/runs/train/dltt_20240419/weights/best.pt'
+# model_path = '/data/blvhop/model/runs/train/dltt_20240703/weights/last.onnx'
 # model_path = '/data/blvhop/model/runs/train/nltk_20230826/weights/best.pt' # nltk
 
 model = YOLO(model=model_path)
@@ -41,15 +41,11 @@ TOP = '/data/blvhop/mjzy'
 TOP = '/mnt/W/dataset/00采集数据-00综合数据'
 TOP = '/root/blvhop/vector_index/dataset/tmp4/ahmc'
 TOP = '/root/blvhop/test/dltt/test'
+TOP = '/root/blvhop/vector_index/dataset/vidio_split'
 subfolders.append(TOP)
 for root, dirs, files in os.walk(top=TOP, topdown=True, onerror=None, followlinks=True):
     for d in dirs:
-        if model_type == 'dltt':
-            if root.find('电力铁塔驱鸟') >= 0:
-                subfolders.append(os.path.join(root, d))
-        elif model_type == 'jt':
-            if root.find('ecoheze_jt_video') >= 0:
-                subfolders.append(os.path.join(root, d))
+        subfolders.append(os.path.join(root, d))
 
 for subfolder in tqdm(subfolders):
     try:
@@ -78,7 +74,7 @@ for subfolder in tqdm(subfolders):
                 detection['name'] = '鸟'
             else:
                 detection['name'] = name
-            # if name not in ('鸟',):
+            # if detection['name'] not in ('鸟',):
             #     continue
             detection['confidence'] = boxes.conf[i]
             detection['bndbox'] = boxes.xyxy[i].cpu().numpy().astype(int).tolist()

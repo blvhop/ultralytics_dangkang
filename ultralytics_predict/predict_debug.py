@@ -16,11 +16,11 @@ from ultralytics import YOLO
 model_path = '/root/blvhop/vector_index/model/model_hwxj_det_20231012.pt'
 model_path = '/root/blvhop/ultralytics/yolov8s-fp16.onnx'
 model_path = '/data/blvhop/model/runs/train/dltt_20240703/weights/last.onnx'
+model_path = '/tmp/pymp-pycharm/ai_app/static/model/model_hwxj_det_20240816.onnx'
 model = YOLO(model_path)
 
 TOP = '/data/label-studio/media/local/mjzy/普氏原羚_20190707.mp4'
-TOP = '/tmp/ttt.png'
-TOP = '/root/blvhop/test/dltt'
+TOP = '/data/blvhop/test.jpg'
 results = model.predict(task='detect', source=TOP, half=True, iou=0.45, conf=0.25, verbose=True, save=True, stream=False)
 
 for result in results:
@@ -28,6 +28,6 @@ for result in results:
     masks = result.masks  # Masks object for segmentation masks outputs
     probs = result.probs  # Class probabilities for classification outputs
 #########################################################
-    print(result)
+    print(result.boxes.xyxy)
 
 

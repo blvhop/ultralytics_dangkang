@@ -3,6 +3,7 @@
 import ast
 import contextlib
 import json
+import os
 import platform
 import zipfile
 from collections import OrderedDict, namedtuple
@@ -13,6 +14,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
+from requests import session
 
 from ultralytics.utils import ARM64, LINUX, LOGGER, ROOT, yaml_load
 from ultralytics.utils.checks import check_requirements, check_suffix, check_version, check_yaml
@@ -154,9 +156,14 @@ class AutoBackend(nn.Module):
         elif onnx:  # ONNX Runtime
             LOGGER.info(f'Loading {w} for ONNX Runtime inference...')
             check_requirements(('onnx', 'onnxruntime-gpu' if cuda else 'onnxruntime'))
+            # import torch
             import onnxruntime
-            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
+            gpu_id = os.environ.get('CUDA_VISIBLE_DEVICES', '0')
+            gpu_id = 0
+            providers = [('CUDAExecutionProvider', {'device_id':int(gpu_id)}),] if cuda else ['CPUExecutionProvider']
+            print('推理使用cuda?', torch.cuda.device_count(), cuda, gpu_id)
             session = onnxruntime.InferenceSession(w, providers=providers)
+            assert 'CUDAExecutionProvider' in session.get_providers(), '没有使用gpu推理'
             output_names = [x.name for x in session.get_outputs()]
             metadata = session.get_modelmeta().custom_metadata_map  # metadata
         elif xml:  # OpenVINO

@@ -21,7 +21,7 @@ for subfolder in tqdm(subfolders):
     try:
         # classes: 14: 'bird'
         # results = model.predict(source=subfolder, classes=[14], iou=0.45, conf=0.25, verbose=False, save=False, stream=False)
-        results = model.predict(source=subfolder, iou=0.45, conf=0.25, verbose=False, save=True, exist_ok=True, project=f'runs/seg/', stream=False)
+        results = model.predict(source=subfolder, task='segment', iou=0.45, conf=0.25, verbose=False, save=True, exist_ok=True, project=f'runs/seg/', stream=False)
     except FileNotFoundError:
         continue
 
