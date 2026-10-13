@@ -1,0 +1,16 @@
+path: /usr/local/run/blvhop/dwxw_demo_image_20221113
+train: images/train/
+val: images/val/
+
+nc: 8
+
+names:
+- 印度黑羚
+- 印度黑羚-异常-体表
+- 水鹿
+- 水鹿-异常-体表-伤口
+- 白鹇
+- 白鹇-异常-体表
+- 蓝鹇
+- 蓝鹇-异常-体表
+

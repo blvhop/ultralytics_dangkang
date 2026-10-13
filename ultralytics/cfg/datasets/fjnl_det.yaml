@@ -1,0 +1,9 @@
+path: /usr/local/run/blvhop/fjnl
+train: images/train
+val: images/val
+test:
+
+nc: 1
+
+names:
+  - 鸟

@@ -1,0 +1,11 @@
+path: /usr/local/run/blvhop/hzsd-hwxj
+train: images/train
+val: images/val
+test:
+
+nc: 3
+
+names:
+  - 人
+  - 兽
+  - 鸟

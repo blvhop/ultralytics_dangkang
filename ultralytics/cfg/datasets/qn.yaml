@@ -1,0 +1,13 @@
+path: /data/blvhop/qn.yolo
+train: images/train
+val: images/val
+test:
+
+nc: 1
+
+kpt_shape: [1, 2]
+flip_idx: [0]
+
+# Classes
+names:
+  0: 鸟

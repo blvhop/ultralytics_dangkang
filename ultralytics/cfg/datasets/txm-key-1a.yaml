@@ -1,0 +1,12 @@
+path: /usr/local/run/blvhop/txm-key/1a
+train: images/train
+val: images/val
+test:
+
+nc: 4
+
+names:
+  - 大白鹭
+  - 牛背鹭
+  - 大白鹭T
+  - 牛背鹭T

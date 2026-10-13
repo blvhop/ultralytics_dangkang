@@ -1,0 +1,6 @@
+names:
+  0: "牦牛"
+  1: "藏野驴"
+path: /data/blvhop/djwrj.yolo
+train: ./images/train/
+val: ./images/val/

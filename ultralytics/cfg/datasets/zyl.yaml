@@ -1,0 +1,9 @@
+path: /usr/local/run/blvhop/zyl
+train: images/train
+val: images/val
+test:
+
+nc: 1
+
+names:
+  - 藏野驴

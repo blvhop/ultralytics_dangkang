@@ -1,0 +1,17 @@
+path: /usr/local/run/blvhop/dwxw_demo_video_20221113/frames/
+train: images/train/
+val: images/val/
+
+nc: 9
+
+names:
+- 赤麻鸭
+- 黑颈天鹅
+- 斑嘴鸭
+- 斑嘴鸭-异常-攻击
+- 翘鼻麻鸭
+- 水鹿
+- 白鹇
+- 白鹇-异常-攻击
+- 白鹇-白色粪便
+

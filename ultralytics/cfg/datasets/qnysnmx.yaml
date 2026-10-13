@@ -1,0 +1,12 @@
+path: /usr/local/run/blvhop/qnysnmx
+train: images/train
+val: images/val
+test:
+
+nc: 4
+
+names:
+  - 乌鸦
+  - 喜鹊
+  - 白鹭
+  - 麻雀

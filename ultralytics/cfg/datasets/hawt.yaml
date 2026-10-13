@@ -1,0 +1,7 @@
+names:
+  0: "人"
+  1: "船"
+  2: "鱼"
+path: /data/blvhop/hawt.yolo
+train: ./images/train/
+val: ./images/val/

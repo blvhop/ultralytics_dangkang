@@ -1,0 +1,5 @@
+names:
+  0: "标尺"
+path: /data/blvhop/hyzxlg.yolo
+train: ./images/train/
+val: ./images/val/

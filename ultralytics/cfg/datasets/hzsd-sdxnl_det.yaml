@@ -1,0 +1,10 @@
+path: /usr/local/run/blvhop/hzsd-sdxnl
+train: images/train
+val: images/val
+test:
+
+nc: 2
+
+names:
+  - 鸟
+  - 人

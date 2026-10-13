@@ -1,0 +1,8 @@
+path: /root/blvhop/by
+train: ./images/train/
+val: ./images/val/
+
+names:
+  0: 台湾乳白蚁
+  1: 蚁路
+

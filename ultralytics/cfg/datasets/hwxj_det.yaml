@@ -1,0 +1,11 @@
+path: /data/blvhop/hwxj.yolo
+train: images/train
+val: images/val
+test:
+
+nc: 3
+
+names:
+  - 鸟
+  - 人
+  - 兽

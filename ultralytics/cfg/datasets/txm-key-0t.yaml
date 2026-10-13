@@ -1,0 +1,41 @@
+path: /usr/local/run/blvhop/txm-key/0t
+train: images/train
+val: images/val
+test:
+
+nc: 33
+
+names:
+  - 黑头白鹮T
+  - 白肩黑鹮T
+  - 朱鹮T
+  - 彩鹮T
+  - 白琵鹭T
+  - 黑脸琵鹭T
+  - 大麻鳽T
+  - 小苇鳽T
+  - 黄苇鳽T
+  - 紫背苇鳽T
+  - 栗苇鳽T
+  - 黑鳽T
+  - 夜鹭T
+  - 海南鳽T
+  - 栗鳽T
+  - 黑冠鳽T
+  - 绿鹭T
+  - 牛背鹭T
+  - 爪哇池鹭T
+  - 印度池鹭T
+  - 池鹭T
+  - 苍鹭T
+  - 白腹鹭T
+  - 草鹭T
+  - 大白鹭T
+  - 白颈黑鹭（斑鹭）T
+  - 中白鹭T
+  - 白鹭T
+  - 黄嘴白鹭T
+  - 岩鹭T
+  - 白鹈鹕T
+  - 斑嘴鹈鹕T
+  - 卷羽鹈鹕T
